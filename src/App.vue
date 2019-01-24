@@ -1,38 +1,67 @@
 <template>
-  <v-app>
-    <v-toolbar app>
-      <v-toolbar-title class="headline text-uppercase">
+  <div id="app">
+    <v-app id="inspire">
+      <v-toolbar :color="colorBar" dark fixed app clipped-right>
+        <v-toolbar-side-icon @click.stop="sideBar = !sideBar"></v-toolbar-side-icon>
+        <v-toolbar-title>Toolbar</v-toolbar-title>
+        <v-spacer></v-spacer>
+      </v-toolbar>
+      <v-navigation-drawer fixed v-model="sideBar" app>
+        <v-list>
+          <v-list-tile avatar v-for="menu in menuItems" :key="menu.title" @click="changePage(menu)">
+            <v-list-tile-action>
+              <v-icon>{{ menu.icon }}</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title v-text="menu.title"/>
+            </v-list-tile-content>
+          </v-list-tile>
+        </v-list>
+      </v-navigation-drawer>
+      <v-content>
+        <v-container fluid fill-height>
+          <v-layout justify-center align-center>
+            <router-view></router-view>
+          </v-layout>
+        </v-container>
+      </v-content>
+      <v-footer :color="colorBar" class="white--text" app>
         <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn
-        flat
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-      >
-        <span class="mr-2">Latest Release</span>
-      </v-btn>
-    </v-toolbar>
-
-    <v-content>
-      <HelloWorld/>
-    </v-content>
-  </v-app>
+        <v-spacer></v-spacer>
+        <span>&copy; 2017</span>
+      </v-footer>
+    </v-app>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
-
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  },
-  data () {
+  data() {
     return {
-      //
+      sideBar: true,
+      colorBar: "teal",
+      menuItems: [
+        { icon: "widgets", title: "Dashboard", path: "/" },
+        { icon: "info", title: "About", path: "/about" },
+        { icon: "supervisor_account", title: "Login", path: "/login" }
+      ]
+    };
+  },
+  methods: {
+    changePage(menu) {
+      this.$router.push(menu.path);
     }
   }
-}
+};
 </script>
+
+
+<style lang="less">
+#app {
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
+</style>
