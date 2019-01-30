@@ -16,13 +16,22 @@
               <v-list-tile-title v-text="menu.title"/>
             </v-list-tile-content>
           </v-list-tile>
+          <v-list-tile @click="onLogout">
+            <v-list-tile-action>
+              <v-icon>exit_to_app</v-icon>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title>Logout</v-list-tile-title>
+            </v-list-tile-content>
+          </v-list-tile>
         </v-list>
       </v-navigation-drawer>
       <v-content>
         <v-container fluid fill-height>
-          <v-layout justify-center align-center>
-            <router-view></router-view>
-          </v-layout>
+          <!-- <v-layout justify-center align-center> -->
+          <app-alert></app-alert>
+          <router-view></router-view>
+          <!-- </v-layout> -->
         </v-container>
       </v-content>
       <v-footer :color="colorBar" class="white--text" app>
@@ -35,7 +44,27 @@
 </template>
 
 <script>
+import store from "@/store";
+
 export default {
+  computed: {
+    isLoggedIn: function() {
+      return this.$store.getters["auth/isLoggedIn"];
+    }
+  },
+  created() {
+    this.$http.interceptors.response.use(undefined, err => {
+      return new Promise(function(resolve, reject) {
+        const { status, config } = err.response;
+        // if (status === 401 && config && !config.__isRetryRequest) {
+        if (status === 401 && config && !config.__isRetryRequest) {
+          store.dispatch("auth/logout");
+        }
+        // throw err;
+        reject(err);
+      });
+    });
+  },
   data() {
     return {
       sideBar: true,
@@ -43,13 +72,21 @@ export default {
       menuItems: [
         { icon: "widgets", title: "Dashboard", path: "/" },
         { icon: "info", title: "About", path: "/about" },
+        { icon: "supervisor_account", title: "Users", path: "/users" },
         { icon: "supervisor_account", title: "Login", path: "/login" }
       ]
     };
   },
   methods: {
     changePage(menu) {
+      console.log("changePage: ", menu);
       this.$router.push(menu.path);
+    },
+    onLogout: function() {
+      console.log("onLogout");
+      this.$store.dispatch("auth/logout").then(() => {
+        this.$router.push("/login");
+      });
     }
   }
 };
