@@ -6,19 +6,27 @@
       </v-toolbar>
       <v-card-text>
         <v-form>
-          <v-text-field prepend-icon="person" name="login" label="Login" type="text"></v-text-field>
           <v-text-field
-            id="password"
+            prepend-icon="person"
+            type="text"
+            name="username"
+            v-model="login.username"
+            v-validate="'required'"
+            label="Username"
+          ></v-text-field>
+          <v-text-field
             prepend-icon="lock"
-            name="password"
-            label="Password"
             type="password"
+            name="password"
+            v-model="login.password"
+            v-validate="'required'"
+            label="Password"
           ></v-text-field>
         </v-form>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary">Login</v-btn>
+        <v-btn @click="onSubmit" type="submit" color="primary">Login</v-btn>
       </v-card-actions>
     </v-card>
   </v-flex>
@@ -26,8 +34,27 @@
 
 <script>
 export default {
+  $_veeValidate: {
+    validator: "new"
+  },
   data: () => ({
-    
-  })
+    login: {
+      username: "",
+      password: ""
+    }
+  }),
+  methods: {
+    async onSubmit() {
+      console.log("Login onSubmit");
+      const validated = await this.$validator.validateAll();
+
+      if (validated) {
+        this.$store
+          .dispatch("auth/login", this.login)
+          .then(() => this.$router.push("/"))
+          .catch(err => console.log(err));
+      }
+    }
+  }
 };
 </script>
